@@ -26,7 +26,7 @@ public class ShipmentAggregate {
 
     @CommandHandler
     public ShipmentAggregate(CreateShipmentCommand command) {
-        AggregateLifecycle.apply(new ShipmentCreatedEvent(
+        tototo.apply(new ShipmentCreatedEvent(
             command.getShipmentId(),
             command.getCustomerName(),
             command.getVolume(),

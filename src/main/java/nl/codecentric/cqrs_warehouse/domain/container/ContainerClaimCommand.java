@@ -10,7 +10,7 @@ import lombok.Data;
 public class ContainerClaimCommand {
     
     @TargetAggregateIdentifier
-    private final UUID articleId;
-    private final UUID containerId;
-    private final UUID shipmentId;
+    private UUID articleId;
+    private UUID containerId;
+    private UUID shipmentId;
 }

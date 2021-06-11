@@ -1,15 +1,16 @@
 package nl.codecentric.cqrs_warehouse.domain.truck;
-
-import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 import lombok.Data;
 
+
 @Data
 public class ReportTruckArrivedCommand {
     @TargetAggregateIdentifier
-    private final UUID truck;
-    private final Instant instant;
+    private final UUID truckId;
+    private final UUID shipmentId;
+
 }

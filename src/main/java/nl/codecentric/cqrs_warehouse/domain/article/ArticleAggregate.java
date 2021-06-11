@@ -29,7 +29,7 @@ public class ArticleAggregate {
     private String name;
 
     // used also to check stock
-    @AggregateMember(eventForwardingMode = ForwardMatchingInstances.class, routingKey = )
+    @AggregateMember(eventForwardingMode = ForwardMatchingInstances.class)
     private Map<UUID, Container> containers;
 
     @CommandHandler

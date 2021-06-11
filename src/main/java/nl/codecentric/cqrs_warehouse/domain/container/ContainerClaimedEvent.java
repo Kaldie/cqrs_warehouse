@@ -8,4 +8,5 @@ import lombok.Data;
 public class ContainerClaimedEvent {
     private final UUID articleId;
     private final UUID containerId;
+    private final UUID shipmentId;
 }

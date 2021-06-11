@@ -5,6 +5,6 @@ import java.util.UUID;
 import lombok.Data;
 
 @Data
-public class ContainerLoadedEvent {
-    private final UUID containerId;
+public class ArticleOutOfStockEvent {
+    private final UUID articleId;
 }

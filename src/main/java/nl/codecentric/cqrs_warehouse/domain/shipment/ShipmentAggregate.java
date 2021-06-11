@@ -22,20 +22,17 @@ public class ShipmentAggregate {
     private List<UUID> containers;
     private String customerName;
     private Integer volume;
-    private String contentName;
+    private UUID articleId;
+    private String state;
 
     @CommandHandler
     public ShipmentAggregate(CreateShipmentCommand command) {
-        tototo.apply(new ShipmentCreatedEvent(
+        AggregateLifecycle.apply(new ShipmentCreatedEvent(
             command.getShipmentId(),
             command.getCustomerName(),
             command.getVolume(),
-            command.getContentName()
+            command.getArticleId()
         ));
-    }
-
-    public void handle(ReserveShipmentCommand command) {
-        if ()
     }
 
     @EventSourcingHandler
@@ -44,11 +41,27 @@ public class ShipmentAggregate {
         this.containers = new ArrayList<>();
         this.customerName = event.getCustomerName();
         this.volume = event.getVolume();
-        this.contentName = event.getContentName();
+        this.articleId = event.getArticleId();
+        this.state="open";
     }
 
+    @CommandHandler
+    public void handle(IntialiseShipmentCommand command)  {
+        AggregateLifecycle.apply(new ShipmentInitialisedEvent(
+            command.getShipmentId(),
+            command.getCustomer(),
+            command.getArticleId(),
+            command.getVolume()
+        ));
+    }
 
     @CommandHandler
-    public void handle(ReserveShipmentCommand command) {
+    public void handle(ResolveShipmentCommand command) {
+        AggregateLifecycle.apply(new ShipmentResolvedEvent(command.getShipmentId(), command.getState()));
+    }
+
+    @EventSourcingHandler
+    public void on(ShipmentResolvedEvent event) {
+        this.state = event.getState();
     }
 }

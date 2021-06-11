@@ -1,9 +1,14 @@
 package nl.codecentric.cqrs_warehouse.domain.article;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.axonframework.commandhandling.CommandHandler;
@@ -17,7 +22,9 @@ import org.axonframework.spring.stereotype.Aggregate;
 import javassist.NotFoundException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nl.codecentric.cqrs_warehouse.domain.container.ClaimContainerCommand;
 import nl.codecentric.cqrs_warehouse.domain.container.Container;
+import nl.codecentric.cqrs_warehouse.domain.container.ContainerClaimedEvent;
 import nl.codecentric.cqrs_warehouse.domain.container.MoveContainerCommand;
 
 @Data
@@ -53,9 +60,8 @@ public class ArticleAggregate {
 
     @EventSourcingHandler
     private void on(ContainerUnloadedEvent event) {
-        this.containers.put(
-            event.getContainerId(), 
-            new Container(event.getContainerId(), event.getExpirationDate(), false, event.getLocation()));
+        this.containers.put(event.getContainerId(),
+                new Container(event.getContainerId(), event.getExpirationDate(), false, event.getLocation()));
     }
 
     @CommandHandler
@@ -65,7 +71,7 @@ public class ArticleAggregate {
         }
         AggregateLifecycle.apply(new ContainerLoadedEvent(command.getContainerId()));
     }
-    
+
     @EventSourcingHandler
     private void handle(ContainerLoadedEvent event) {
         containers.remove(event.getContainerId());
@@ -78,12 +84,34 @@ public class ArticleAggregate {
         }
         AggregateLifecycle.apply(new ContainerExpiredEvent(command.getContainerId()));
     }
-    
+
     @EventSourcingHandler
     private void handle(ContainerExpiredEvent event) {
         containers.remove(event.getContainerId());
     }
 
+    @CommandHandler
+    private void handle(ClaimContainerCommand command) {
+        if(!hasAvailableContainers()) {
+            AggregateLifecycle.apply(new ArticleOutOfStockEvent(this.id));
+        } else {
+            UUID containerId = findOldestAvailableContainer();
+            AggregateLifecycle.apply(new ContainerClaimedEvent(command.getArticleId(), containerId, command.getShipmentId()));
+        }
+    }
 
-    
+    private UUID findOldestAvailableContainer() {
+        return this.containers.values().stream()
+            .filter(container -> container.getIsReserved() == false)
+            .sorted(Comparator.comparingLong(container -> container.getExpirationDate().getEpochSecond()))
+            .findFirst().get().getContainerId();
+    }
+
+    private boolean hasAvailableContainers() {
+        return !this.containers.isEmpty() && 
+        this.containers.values().stream()
+            .anyMatch(container -> container.getIsReserved() == false && 
+                container.getExpirationDate().isAfter(Instant.now().plus(5, ChronoUnit.DAYS)));
+    }
+
 }

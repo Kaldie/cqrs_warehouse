@@ -5,10 +5,7 @@ import java.util.UUID;
 import lombok.Data;
 
 @Data
-public class ShipmentCreatedEvent {
+public class ShipmentResolvedEvent {
     private final UUID shipmentId;
-    private final String customerName;
-    private final Integer volume;
-    private final UUID articleId;
-
+    private final String state;
 }

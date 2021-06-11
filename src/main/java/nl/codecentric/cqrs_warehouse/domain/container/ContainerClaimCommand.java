@@ -7,8 +7,10 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import lombok.Data;
 
 @Data
-public class LoadContainerCommand {
+public class ContainerClaimCommand {
+    
     @TargetAggregateIdentifier
+    private final UUID articleId;
     private final UUID containerId;
-    private final String to;
+    private final UUID shipmentId;
 }

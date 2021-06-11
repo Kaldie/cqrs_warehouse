@@ -1,13 +1,15 @@
-package nl.codecentric.cqrs_warehouse.domain.container;
+package nl.codecentric.cqrs_warehouse.domain.article;
 
 import java.util.UUID;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
 import lombok.Data;
 
 @Data
-public class UnloadContainerCommand {
+public class LoadContainerCommand {
     @TargetAggregateIdentifier
+    private final UUID articleId;
     private final UUID containerId;
-    private final String to;
+    private final String location;
 }

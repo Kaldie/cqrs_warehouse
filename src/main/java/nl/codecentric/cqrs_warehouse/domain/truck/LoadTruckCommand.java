@@ -12,5 +12,4 @@ public class LoadTruckCommand {
     @TargetAggregateIdentifier
     private final UUID truck;
     private final UUID shipmentId;
-    private final String location;
 }

@@ -32,7 +32,6 @@ public class ManageShipmentSaga {
         this.shipmentId = event.getShipmentId();
 
         commandGateway.send(new CreateShipmentCommand(event.getShipmentId(), event.getCustomerName(), event.getVolume(), event.getArticleId()));
-
     }
 
     @SagaEventHandler(associationProperty = "shipmentId")

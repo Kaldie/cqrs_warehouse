@@ -1,4 +1,4 @@
-package nl.codecentric.cqrs_warehouse.domain.article;
+package nl.codecentric.cqrs_warehouse.domain.container;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,5 +15,5 @@ public class UnloadContainerCommand {
     private UUID articleId;
     private UUID containerId;
     private String location;
-    private Instant expirationData;
+    private Instant expirationDate;
 }

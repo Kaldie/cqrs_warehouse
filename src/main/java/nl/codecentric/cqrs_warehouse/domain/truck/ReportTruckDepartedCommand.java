@@ -7,7 +7,7 @@ import java.util.UUID;
 
 
 @Data
-public class ReportTruckArrivedCommand {
+public class ReportTruckDepartedCommand {
     @TargetAggregateIdentifier
     private final UUID truckId;
     private final UUID shipmentId;

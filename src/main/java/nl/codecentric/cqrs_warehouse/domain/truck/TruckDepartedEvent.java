@@ -5,7 +5,6 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class TruckArrivedEvent {
+public class TruckDepartedEvent {
     private final UUID truckId;
-    private final UUID shipmentId;
 }

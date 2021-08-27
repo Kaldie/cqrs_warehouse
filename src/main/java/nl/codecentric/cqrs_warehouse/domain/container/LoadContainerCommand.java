@@ -1,4 +1,4 @@
-package nl.codecentric.cqrs_warehouse.domain.article;
+package nl.codecentric.cqrs_warehouse.domain.container;
 
 import java.util.UUID;
 
@@ -11,5 +11,5 @@ public class LoadContainerCommand {
     @TargetAggregateIdentifier
     private final UUID articleId;
     private final UUID containerId;
-    private final String location;
+    private final UUID truckId;
 }

@@ -10,6 +10,6 @@ import lombok.Data;
 public class LoadTruckCommand {
     
     @TargetAggregateIdentifier
-    private final UUID truck;
+    private final UUID truckId;
     private final UUID shipmentId;
 }

@@ -1,4 +1,4 @@
-package nl.codecentric.cqrs_warehouse.domain.article;
+package nl.codecentric.cqrs_warehouse.domain.container;
 
 import java.time.Instant;
 import java.util.UUID;

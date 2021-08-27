@@ -7,4 +7,5 @@ import lombok.Data;
 @Data
 public class ArticleOutOfStockEvent {
     private final UUID articleId;
+    private final UUID shipmentId;
 }

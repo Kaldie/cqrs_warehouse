@@ -2,15 +2,12 @@ package nl.codecentric.cqrs_warehouse.domain.article;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
+import nl.codecentric.cqrs_warehouse.domain.container.*;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -19,13 +16,8 @@ import org.axonframework.modelling.command.AggregateMember;
 import org.axonframework.modelling.command.ForwardMatchingInstances;
 import org.axonframework.spring.stereotype.Aggregate;
 
-import javassist.NotFoundException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nl.codecentric.cqrs_warehouse.domain.container.ClaimContainerCommand;
-import nl.codecentric.cqrs_warehouse.domain.container.Container;
-import nl.codecentric.cqrs_warehouse.domain.container.ContainerClaimedEvent;
-import nl.codecentric.cqrs_warehouse.domain.container.MoveContainerCommand;
 
 @Data
 @NoArgsConstructor
@@ -46,14 +38,14 @@ public class ArticleAggregate {
 
     @EventSourcingHandler
     private void on(ArticleCreatedEvent event) {
-        this.name = event.getName();
         this.id = event.getId();
+        this.name = event.getName();
         this.containers = new HashMap<>();
     }
 
     @CommandHandler
     private void handle(UnloadContainerCommand command) {
-        AggregateLifecycle.apply(new ContainerUnloadedEvent(command.getContainerId(), command.getExpirationData(),
+        AggregateLifecycle.apply(new ContainerUnloadedEvent(command.getContainerId(), command.getExpirationDate(),
                 command.getLocation()));
 
     }
@@ -65,11 +57,11 @@ public class ArticleAggregate {
     }
 
     @CommandHandler
-    private void handle(LoadContainerCommand command) throws NotFoundException {
+    private void handle(LoadContainerCommand command) throws IllegalStateException {
         if (!containers.containsKey(command.getContainerId())) {
-            throw new NotFoundException("could not find the container within the article!");
+            throw new IllegalStateException("could not find the container within the article!");
         }
-        AggregateLifecycle.apply(new ContainerLoadedEvent(command.getContainerId()));
+        AggregateLifecycle.apply(new ContainerLoadedEvent(command.getContainerId(), command.getTruckId()));
     }
 
     @EventSourcingHandler
@@ -78,9 +70,9 @@ public class ArticleAggregate {
     }
 
     @CommandHandler
-    private void handle(ExpireContainerCommand command) throws NotFoundException {
+    private void handle(ExpireContainerCommand command) throws IllegalStateException {
         if (!containers.containsKey(command.getContainerId())) {
-            throw new NotFoundException("could not find the container within the article!");
+            throw new IllegalStateException("could not find the container within the article!");
         }
         AggregateLifecycle.apply(new ContainerExpiredEvent(command.getContainerId()));
     }
@@ -93,7 +85,7 @@ public class ArticleAggregate {
     @CommandHandler
     private void handle(ClaimContainerCommand command) {
         if(!hasAvailableContainers()) {
-            AggregateLifecycle.apply(new ArticleOutOfStockEvent(this.id));
+            AggregateLifecycle.apply(new ArticleOutOfStockEvent(this.id, command.getShipmentId()));
         } else {
             UUID containerId = findOldestAvailableContainer();
             AggregateLifecycle.apply(new ContainerClaimedEvent(command.getArticleId(), containerId, command.getShipmentId()));
@@ -102,15 +94,14 @@ public class ArticleAggregate {
 
     private UUID findOldestAvailableContainer() {
         return this.containers.values().stream()
-            .filter(container -> container.getIsReserved() == false)
-            .sorted(Comparator.comparingLong(container -> container.getExpirationDate().getEpochSecond()))
-            .findFirst().get().getContainerId();
+                .filter(container -> !container.getIsReserved())
+                .min(Comparator.comparingLong(container -> container.getExpirationDate().getEpochSecond())).get().getContainerId();
     }
 
     private boolean hasAvailableContainers() {
         return !this.containers.isEmpty() && 
         this.containers.values().stream()
-            .anyMatch(container -> container.getIsReserved() == false && 
+            .anyMatch(container -> !container.getIsReserved() &&
                 container.getExpirationDate().isAfter(Instant.now().plus(5, ChronoUnit.DAYS)));
     }
 

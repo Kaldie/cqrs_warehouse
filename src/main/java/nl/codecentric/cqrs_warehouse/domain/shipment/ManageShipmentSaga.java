@@ -30,14 +30,16 @@ public class ManageShipmentSaga {
     public void on(ShipmentInitialisedEvent event) {
         this.articleId = event.getArticleId();
         this.shipmentId = event.getShipmentId();
+        this.volume = event.getVolume();
+        this.numberOfClaimedContainers = 0;
 
-        commandGateway.send(new CreateShipmentCommand(event.getShipmentId(), event.getCustomerName(), event.getVolume(), event.getArticleId()));
+        commandGateway.send(new CreateShipmentCommand(event.getShipmentId(), event.getCustomerName(), event.getVolume(), event.getArticleId(), event.getState()));
     }
 
-    @SagaEventHandler(associationProperty = "shipmentId")
-    public void on(ShipmentCreatedEvent event) {
-        commandGateway.send(new ClaimContainerCommand(articleId, event.getShipmentId()));
-    }
+//    @SagaEventHandler(associationProperty = "shipmentId")
+//    public void on(ShipmentCreatedEvent event) {
+//        commandGateway.send(new ClaimContainerCommand(articleId, event.getShipmentId()));
+//    }
 
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ContainerClaimedEvent event) {

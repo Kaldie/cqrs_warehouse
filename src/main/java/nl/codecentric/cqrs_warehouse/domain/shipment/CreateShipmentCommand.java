@@ -13,4 +13,5 @@ public class CreateShipmentCommand {
     private final String customerName;
     private final Integer volume;
     private final UUID articleId;
+    private final String state;
 }

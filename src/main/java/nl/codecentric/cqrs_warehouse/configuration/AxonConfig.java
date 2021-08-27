@@ -11,7 +11,6 @@ import org.axonframework.extensions.mongo.eventsourcing.eventstore.MongoEventSto
 import org.axonframework.extensions.mongo.eventsourcing.tokenstore.MongoTokenStore;
 import org.axonframework.modelling.saga.repository.SagaStore;
 import org.axonframework.serialization.Serializer;
-import org.axonframework.spring.config.AxonConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,7 +20,7 @@ public class AxonConfig {
     @Bean
     public DefaultMongoTemplate defaultMongoTemplate(MongoClient mongoClient) {
         return DefaultMongoTemplate.builder()
-                .mongoDatabase(mongoClient, "warehouse")
+                .mongoDatabase(mongoClient)
                 .build();
     }
 

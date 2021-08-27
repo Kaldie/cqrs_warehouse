@@ -10,5 +10,5 @@ public class ShipmentInitialisedEvent {
     private final String customerName;
     private final UUID articleId;
     private final Integer volume;
-
+    private final String state;
 }

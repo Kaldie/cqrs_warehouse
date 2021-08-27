@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class IntialiseShipmentCommand {
+public class InitialiseShipmentCommand {
     @TargetAggregateIdentifier
     private UUID shipmentId;
     private String customer;
     private UUID articleId;
     private Integer volume;
+    private String state;
 }

@@ -31,4 +31,14 @@ public class TruckAggregate {
         this.truckId = event.getTruckId();
         this.shipmentId = event.getShipmentId();
     }
+
+    @CommandHandler
+    public TruckAggregate(ReportTruckDepartedCommand command) {
+        AggregateLifecycle.apply(new TruckDepartedEvent(command.getTruckId()));
+    }
+
+    @EventSourcingHandler
+    private void on(TruckDepartedEvent event) {
+        this.truckId = event.getTruckId();
+    }
 }

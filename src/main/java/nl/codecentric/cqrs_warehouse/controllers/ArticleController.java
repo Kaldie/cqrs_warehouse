@@ -2,14 +2,19 @@ package nl.codecentric.cqrs_warehouse.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.codecentric.cqrs_warehouse.domain.article.CreateArticleCommand;
+import nl.codecentric.cqrs_warehouse.domain.article.FetchAllArticlesQuery;
 import nl.codecentric.cqrs_warehouse.domain.container.*;
+import nl.codecentric.cqrs_warehouse.repositories.ArticleDTO;
+import nl.codecentric.cqrs_warehouse.repositories.ContainerDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @Slf4j
@@ -18,10 +23,23 @@ public class ArticleController {
     @Autowired
     CommandGateway commandGateway;
 
+    @Autowired
+    QueryGateway queryGateway;
+
     @PostMapping(path = "/articles/create")
     public UUID createArticle(@RequestBody CreateArticleCommand command) {
         commandGateway.sendAndWait(command);
         return command.getId();
+    }
+
+    @GetMapping(path = "/articles")
+    public CompletableFuture<List<ArticleDTO>> getArticles() {
+        return queryGateway.query(new FetchAllArticlesQuery(), ResponseTypes.multipleInstancesOf(ArticleDTO.class));
+    }
+
+    @GetMapping(path = "/article/{articleId}/containers")
+    public CompletableFuture<List<ContainerDTO>> getContainers(@PathVariable("articleId") String articleId) {
+        return queryGateway.query(new FetchAllContainersByArticleQuery(articleId), ResponseTypes.multipleInstancesOf(ContainerDTO.class));
     }
 
     @PostMapping(path = "/articles/unload-container")
@@ -43,13 +61,13 @@ public class ArticleController {
     }
 
     @PostMapping(path = "/articles/claim-container")
-    public UUID moveContainer(@RequestBody ClaimContainerCommand command) {
+    public UUID claimContainer(@RequestBody ClaimContainerCommand command) {
         commandGateway.sendAndWait(command);
         return command.getShipmentId();
     }
 
     @PostMapping(path = "/articles/expire-container")
-    public UUID moveContainer(@RequestBody ExpireContainerCommand command) {
+    public UUID expireContainer(@RequestBody ExpireContainerCommand command) {
         commandGateway.sendAndWait(command);
         return command.getContainerId();
     }

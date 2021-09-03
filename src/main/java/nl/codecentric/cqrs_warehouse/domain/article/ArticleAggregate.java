@@ -45,15 +45,15 @@ public class ArticleAggregate {
 
     @CommandHandler
     private void handle(UnloadContainerCommand command) {
-        AggregateLifecycle.apply(new ContainerUnloadedEvent(command.getContainerId(), command.getExpirationDate(),
-                command.getLocation()));
+        AggregateLifecycle.apply(new ContainerUnloadedEvent(command.getContainerId(), command.getArticleId(), command.getExpirationDate(),
+                this.name, command.getLocation()));
 
     }
 
     @EventSourcingHandler
     private void on(ContainerUnloadedEvent event) {
         this.containers.put(event.getContainerId(),
-                new Container(event.getContainerId(), event.getExpirationDate(), false, event.getLocation()));
+                new Container(event.getContainerId(), event.getArticleId(), event.getArticleName(), event.getExpirationDate(), false, event.getLocation()));
     }
 
     @CommandHandler
@@ -84,12 +84,17 @@ public class ArticleAggregate {
 
     @CommandHandler
     private void handle(ClaimContainerCommand command) {
-        if(!hasAvailableContainers()) {
+        if (!hasAvailableContainers()) {
             AggregateLifecycle.apply(new ArticleOutOfStockEvent(this.id, command.getShipmentId()));
         } else {
             UUID containerId = findOldestAvailableContainer();
             AggregateLifecycle.apply(new ContainerClaimedEvent(command.getArticleId(), containerId, command.getShipmentId()));
         }
+    }
+
+    @CommandHandler
+    private void handle(UnclaimContainerCommand command) {
+        AggregateLifecycle.apply(new ContainerUnclaimedEvent(command.getArticleId(), command.getContainerId(), command.getShipmentId()));
     }
 
     private UUID findOldestAvailableContainer() {
@@ -99,10 +104,10 @@ public class ArticleAggregate {
     }
 
     private boolean hasAvailableContainers() {
-        return !this.containers.isEmpty() && 
-        this.containers.values().stream()
-            .anyMatch(container -> !container.getIsReserved() &&
-                container.getExpirationDate().isAfter(Instant.now().plus(5, ChronoUnit.DAYS)));
+        return !this.containers.isEmpty() &&
+                this.containers.values().stream()
+                        .anyMatch(container -> !container.getIsReserved() &&
+                                container.getExpirationDate().isAfter(Instant.now().plus(5, ChronoUnit.DAYS)));
     }
 
 }

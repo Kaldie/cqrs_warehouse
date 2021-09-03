@@ -1,13 +1,11 @@
 package nl.codecentric.cqrs_warehouse.repositories;
 
-import lombok.Setter;
-import lombok.Value;
+import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document
-@Value
-@Setter
+@Builder(toBuilder = true)
 public class ShipmentDTO {
     @MongoId
     String shipmentId;

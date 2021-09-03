@@ -11,6 +11,8 @@ import java.time.Instant;
 public class ContainerDTO {
     @MongoId
     String containerId;
+    String articleId;
+    String articleName;
     Instant expirationDate;
     boolean isReserved;
     String location;

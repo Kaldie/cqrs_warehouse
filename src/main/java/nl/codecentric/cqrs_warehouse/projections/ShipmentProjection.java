@@ -21,7 +21,7 @@ public class ShipmentProjection {
                 event.getShipmentId().toString(),
                 event.getCustomerName(),
                 event.getVolume(),
-                event.getArticleId(),
+                event.getArticleId().toString(),
                 event.getState()));
     }
 }

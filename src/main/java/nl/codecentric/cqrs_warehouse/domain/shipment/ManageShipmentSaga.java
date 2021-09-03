@@ -36,10 +36,10 @@ public class ManageShipmentSaga {
         commandGateway.send(new CreateShipmentCommand(event.getShipmentId(), event.getCustomerName(), event.getVolume(), event.getArticleId(), event.getState()));
     }
 
-//    @SagaEventHandler(associationProperty = "shipmentId")
-//    public void on(ShipmentCreatedEvent event) {
-//        commandGateway.send(new ClaimContainerCommand(articleId, event.getShipmentId()));
-//    }
+    @SagaEventHandler(associationProperty = "shipmentId")
+    public void on(ShipmentCreatedEvent event) {
+        commandGateway.send(new ClaimContainerCommand(articleId, event.getShipmentId()));
+    }
 
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ContainerClaimedEvent event) {

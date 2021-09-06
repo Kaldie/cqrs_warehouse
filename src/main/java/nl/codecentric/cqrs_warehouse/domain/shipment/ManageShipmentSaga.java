@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.codecentric.cqrs_warehouse.domain.container.ContainerUnclaimedEvent;
 import nl.codecentric.cqrs_warehouse.domain.container.UnclaimContainerCommand;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -18,22 +19,22 @@ import nl.codecentric.cqrs_warehouse.domain.container.ClaimContainerCommand;
 import nl.codecentric.cqrs_warehouse.domain.container.ContainerClaimedEvent;
 
 @Saga
+@Slf4j
 public class ManageShipmentSaga {
 
-    private UUID articleId;
+    private String articleId;
     private Integer volume;
     private List<String> containerIds;
-    private UUID shipmentId;
-
+    private String shipmentId;
     
     @Autowired
-    CommandGateway commandGateway;
+    private transient CommandGateway commandGateway;
 
     @StartSaga
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ShipmentInitialisedEvent event) {
-        this.articleId = event.getArticleId();
-        this.shipmentId = event.getShipmentId();
+        this.articleId = event.getArticleId().toString();
+        this.shipmentId = event.getShipmentId().toString();
         this.volume = event.getVolume();
         this.containerIds = new ArrayList<>();
 
@@ -42,7 +43,7 @@ public class ManageShipmentSaga {
 
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ShipmentCreatedEvent event) {
-        commandGateway.send(new ClaimContainerCommand(articleId, event.getShipmentId()));
+        commandGateway.send(new ClaimContainerCommand(UUID.fromString(articleId), event.getShipmentId()));
     }
 
     @SagaEventHandler(associationProperty = "shipmentId")
@@ -50,7 +51,7 @@ public class ManageShipmentSaga {
         this.containerIds.add(event.getContainerId().toString());
 
         if(this.containerIds.size() < volume){
-            commandGateway.send(new ClaimContainerCommand(articleId, event.getShipmentId()));
+            commandGateway.send(new ClaimContainerCommand(UUID.fromString(articleId), event.getShipmentId()));
         } else {
             commandGateway.send(new ClaimShipmentCommand(event.getShipmentId()));
         }
@@ -58,16 +59,16 @@ public class ManageShipmentSaga {
 
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ArticleOutOfStockEvent event) {
-        commandGateway.send(new UnclaimContainerCommand(this.articleId, UUID.fromString(this.containerIds.get(0)), this.shipmentId));
+        commandGateway.send(new UnclaimContainerCommand(UUID.fromString(articleId), UUID.fromString(this.containerIds.get(0)), UUID.fromString(shipmentId)));
     }
 
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ContainerUnclaimedEvent event) {
         this.containerIds.remove(event.getContainerId().toString());
         if(!this.containerIds.isEmpty()){
-            commandGateway.send(new UnclaimContainerCommand(articleId, UUID.fromString(this.containerIds.get(0)), event.getShipmentId()));
+            commandGateway.send(new UnclaimContainerCommand(UUID.fromString(articleId), UUID.fromString(this.containerIds.get(0)), event.getShipmentId()));
         } else {
-            commandGateway.send(new ResolveShipmentCommand(this.shipmentId, "failed due to out of stock"));
+            commandGateway.send(new ResolveShipmentCommand(UUID.fromString(shipmentId), "Failed! We are out of stock"));
         }
     }
 
@@ -79,6 +80,6 @@ public class ManageShipmentSaga {
     @EndSaga
     @SagaEventHandler(associationProperty = "shipmentId")
     public void on(ShipmentClaimedEvent event) {
-        commandGateway.send(new ResolveShipmentCommand(this.shipmentId, "Shipment ready"));
+        commandGateway.send(new ResolveShipmentCommand(UUID.fromString(shipmentId), "Shipment ready."));
     }
 }

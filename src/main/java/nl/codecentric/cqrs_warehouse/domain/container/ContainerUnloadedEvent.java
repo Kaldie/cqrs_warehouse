@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class ContainerUnloadedEvent {
     private final UUID containerId;
+    private final UUID shipmentId;
     private final UUID articleId;
     private final Instant expirationDate;
     private final String articleName;

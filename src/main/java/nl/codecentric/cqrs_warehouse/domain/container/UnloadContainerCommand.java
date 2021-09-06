@@ -13,6 +13,7 @@ import lombok.Data;
 public class UnloadContainerCommand {
     @TargetAggregateIdentifier
     private UUID articleId;
+    private UUID shipmentId;
     private UUID containerId;
     private String location;
     private Instant expirationDate;

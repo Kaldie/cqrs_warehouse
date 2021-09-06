@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.codecentric.cqrs_warehouse.domain.container.*;
+import nl.codecentric.cqrs_warehouse.domain.shipment.InitialiseShipmentCommand;
+import nl.codecentric.cqrs_warehouse.domain.shipment.ShipmentInitialisedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -22,6 +25,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Aggregate
+@Slf4j
 public class ArticleAggregate {
     @AggregateIdentifier
     private UUID id;
@@ -45,7 +49,7 @@ public class ArticleAggregate {
 
     @CommandHandler
     private void handle(UnloadContainerCommand command) {
-        AggregateLifecycle.apply(new ContainerUnloadedEvent(command.getContainerId(), command.getArticleId(), command.getExpirationDate(),
+        AggregateLifecycle.apply(new ContainerUnloadedEvent(command.getContainerId(), command.getShipmentId(), command.getArticleId(), command.getExpirationDate(),
                 this.name, command.getLocation()));
 
     }
@@ -54,6 +58,17 @@ public class ArticleAggregate {
     private void on(ContainerUnloadedEvent event) {
         this.containers.put(event.getContainerId(),
                 new Container(event.getContainerId(), event.getArticleId(), event.getArticleName(), event.getExpirationDate(), false, event.getLocation()));
+    }
+
+    @CommandHandler
+    public void handle(InitialiseShipmentCommand command) {
+        AggregateLifecycle.apply(new ShipmentInitialisedEvent(
+                command.getShipmentId(),
+                command.getCustomer(),
+                command.getArticleId(),
+                command.getVolume(),
+                command.getState()
+        ));
     }
 
     @CommandHandler
@@ -84,17 +99,35 @@ public class ArticleAggregate {
 
     @CommandHandler
     private void handle(ClaimContainerCommand command) {
+        log.info("Handle claim container command: {}", command);
         if (!hasAvailableContainers()) {
             AggregateLifecycle.apply(new ArticleOutOfStockEvent(this.id, command.getShipmentId()));
         } else {
             UUID containerId = findOldestAvailableContainer();
+            log.info("Found container to claim: {}", containerId.toString());
             AggregateLifecycle.apply(new ContainerClaimedEvent(command.getArticleId(), containerId, command.getShipmentId()));
         }
+    }
+
+    @EventSourcingHandler
+    private void on(ContainerClaimedEvent event) {
+        Container container = this.containers.get(event.getContainerId());
+        container.setIsReserved(true);
+
+        this.containers.put(container.getContainerId(), container);
     }
 
     @CommandHandler
     private void handle(UnclaimContainerCommand command) {
         AggregateLifecycle.apply(new ContainerUnclaimedEvent(command.getArticleId(), command.getContainerId(), command.getShipmentId()));
+    }
+
+    @EventSourcingHandler
+    private void on(ContainerUnclaimedEvent event) {
+        Container container = this.containers.get(event.getContainerId());
+        container.setIsReserved(false);
+
+        this.containers.put(container.getContainerId(), container);
     }
 
     private UUID findOldestAvailableContainer() {

@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InitialiseShipmentCommand {
     @TargetAggregateIdentifier
+    private UUID articleId;
     private UUID shipmentId;
     private String customer;
-    private UUID articleId;
     private Integer volume;
     private String state;
 }

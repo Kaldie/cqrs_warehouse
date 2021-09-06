@@ -1,5 +1,7 @@
 package nl.codecentric.cqrs_warehouse.projections;
 
+import lombok.extern.slf4j.Slf4j;
+import nl.codecentric.cqrs_warehouse.domain.container.ContainerUnloadedEvent;
 import nl.codecentric.cqrs_warehouse.domain.shipment.FetchAllShipmentsQuery;
 import nl.codecentric.cqrs_warehouse.domain.shipment.FetchShipmentByIdQuery;
 import nl.codecentric.cqrs_warehouse.domain.shipment.ShipmentCreatedEvent;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 @Component
 @ProcessingGroup("ShipmentProjection")
+@Slf4j
 public class ShipmentProjection {
 
     @Autowired
@@ -30,6 +33,19 @@ public class ShipmentProjection {
                 .articleId(event.getArticleId().toString())
                 .state(event.getState())
                 .build());
+    }
+
+    @EventHandler
+    public void on(ContainerUnloadedEvent event) {
+        Optional<ShipmentDTO> shipment = shipmentRepository.findById(event.getShipmentId().toString());
+
+        if (shipment.isPresent()) {
+            ShipmentDTO shipmentDTO = shipment.get().toBuilder().volume(shipment.get().getVolume() - 1).build();
+            if(shipmentDTO.getVolume() <= 0) {
+                shipmentDTO = shipmentDTO.toBuilder().state("Truck unloaded in docking bay.").build();
+            }
+            shipmentRepository.save(shipmentDTO);
+        }
     }
 
     @EventHandler

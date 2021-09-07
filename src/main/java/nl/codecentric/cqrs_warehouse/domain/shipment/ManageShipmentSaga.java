@@ -68,7 +68,7 @@ public class ManageShipmentSaga {
         if(!this.containerIds.isEmpty()){
             commandGateway.send(new UnclaimContainerCommand(UUID.fromString(articleId), UUID.fromString(this.containerIds.get(0)), event.getShipmentId()));
         } else {
-            commandGateway.send(new ResolveShipmentCommand(UUID.fromString(shipmentId), "Failed! We are out of stock"));
+            commandGateway.send(new ResolveShipmentCommand(UUID.fromString(shipmentId), "Failed! We do not have enough stock"));
         }
     }
 

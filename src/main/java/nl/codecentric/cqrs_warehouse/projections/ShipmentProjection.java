@@ -66,6 +66,16 @@ public class ShipmentProjection {
     }
 
     @EventHandler
+    public void on(ShipmentCanceledEvent event) {
+        Optional<ShipmentDTO> shipment = shipmentRepository.findById(event.getShipmentId().toString());
+
+        if (shipment.isPresent()) {
+            ShipmentDTO shipmentDTO = shipment.get().toBuilder().state(event.getState()).build();
+            shipmentRepository.save(shipmentDTO);
+        }
+    }
+
+    @EventHandler
     public void on(ShipmentDeparturedEvent event) {
         shipmentRepository.deleteById(event.getShipmentId().toString());
     }

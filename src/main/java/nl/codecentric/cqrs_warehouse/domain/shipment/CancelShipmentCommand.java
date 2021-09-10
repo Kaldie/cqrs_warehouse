@@ -1,13 +1,12 @@
 package nl.codecentric.cqrs_warehouse.domain.shipment;
 
-import java.util.UUID;
-
+import lombok.Data;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-import lombok.Data;
+import java.util.UUID;
 
 @Data
-class ClaimShipmentCommand {
+class CancelShipmentCommand {
     @TargetAggregateIdentifier
     private final UUID shipmentId;
     private final String state;

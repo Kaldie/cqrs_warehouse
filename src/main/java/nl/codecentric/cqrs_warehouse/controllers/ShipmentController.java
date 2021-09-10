@@ -1,9 +1,6 @@
 package nl.codecentric.cqrs_warehouse.controllers;
 
-import nl.codecentric.cqrs_warehouse.domain.shipment.CreateShipmentCommand;
-import nl.codecentric.cqrs_warehouse.domain.shipment.FetchAllShipmentsQuery;
-import nl.codecentric.cqrs_warehouse.domain.shipment.FetchShipmentByIdQuery;
-import nl.codecentric.cqrs_warehouse.domain.shipment.InitialiseShipmentCommand;
+import nl.codecentric.cqrs_warehouse.domain.shipment.*;
 import nl.codecentric.cqrs_warehouse.repositories.ShipmentDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
@@ -47,8 +44,9 @@ public class ShipmentController {
         return command.getShipmentId();
     }
 
-
-
-
+    @PostMapping(path = "/shipments/{shipmentId}/departure")
+    public void departShipment(@PathVariable("shipmentId") String shipmentId) {
+        commandGateway.send(new DepartureShipmentCommand(UUID.fromString(shipmentId)));
+    }
 
 }

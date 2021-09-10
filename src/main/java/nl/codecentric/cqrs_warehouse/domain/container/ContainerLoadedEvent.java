@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class ContainerLoadedEvent {
     private final UUID containerId;
-    private final UUID truckId;
+    private final UUID shipmentId;
 }

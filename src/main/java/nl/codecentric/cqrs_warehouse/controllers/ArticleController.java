@@ -49,7 +49,7 @@ public class ArticleController {
     }
 
     @PostMapping(path = "/articles/load-container")
-    public UUID unloadContainer(@RequestBody LoadContainerCommand command) {
+    public UUID loadContainer(@RequestBody LoadContainerCommand command) {
         commandGateway.sendAndWait(command);
         return command.getContainerId();
     }

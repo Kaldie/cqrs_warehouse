@@ -1,6 +1,7 @@
 package nl.codecentric.cqrs_warehouse.projections;
 
 import nl.codecentric.cqrs_warehouse.domain.container.*;
+import nl.codecentric.cqrs_warehouse.domain.shipment.ShipmentDeparturedEvent;
 import nl.codecentric.cqrs_warehouse.repositories.ContainerDTO;
 import nl.codecentric.cqrs_warehouse.repositories.ContainerRepository;
 import org.axonframework.config.ProcessingGroup;
@@ -26,6 +27,7 @@ public class ContainerProjection {
                 .articleId(event.getArticleId().toString())
                 .expirationDate(event.getExpirationDate())
                 .isReserved(false)
+                .reservedFor("")
                 .articleName(event.getArticleName())
                 .location(event.getLocation())
                 .build());
@@ -46,7 +48,7 @@ public class ContainerProjection {
         Optional<ContainerDTO> container = containerRepository.findById(event.getContainerId().toString());
 
         if (container.isPresent()) {
-            ContainerDTO containerDTO = container.get().toBuilder().location("In truck with id: " + event.getTruckId()).build();
+            ContainerDTO containerDTO = container.get().toBuilder().location("In truck for shipment: " + event.getShipmentId()).build();
             containerRepository.save(containerDTO);
         }
     }
@@ -56,7 +58,7 @@ public class ContainerProjection {
         Optional<ContainerDTO> container = containerRepository.findById(event.getContainerId().toString());
 
         if (container.isPresent()) {
-            ContainerDTO containerDTO = container.get().toBuilder().isReserved(true).build();
+            ContainerDTO containerDTO = container.get().toBuilder().isReserved(true).reservedFor(event.getShipmentId().toString()).build();
             containerRepository.save(containerDTO);
         }
     }
@@ -66,7 +68,7 @@ public class ContainerProjection {
         Optional<ContainerDTO> container = containerRepository.findById(event.getContainerId().toString());
 
         if (container.isPresent()) {
-            ContainerDTO containerDTO = container.get().toBuilder().isReserved(false).build();
+            ContainerDTO containerDTO = container.get().toBuilder().isReserved(false).reservedFor("").build();
             containerRepository.save(containerDTO);
         }
     }
@@ -74,6 +76,14 @@ public class ContainerProjection {
     @EventHandler
     public void on(ContainerExpiredEvent event) {
         containerRepository.deleteById(event.getContainerId().toString());
+    }
+
+    @EventHandler
+    public void on(ShipmentDeparturedEvent event) {
+        List<ContainerDTO> containers = containerRepository.findByReservedFor(event.getShipmentId().toString());
+        containers.forEach(container -> {
+            containerRepository.deleteById(container.getContainerId());
+        });
     }
 
     @QueryHandler

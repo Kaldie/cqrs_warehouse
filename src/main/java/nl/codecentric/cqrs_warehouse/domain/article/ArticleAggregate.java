@@ -76,7 +76,7 @@ public class ArticleAggregate {
         if (!containers.containsKey(command.getContainerId())) {
             throw new IllegalStateException("could not find the container within the article!");
         }
-        AggregateLifecycle.apply(new ContainerLoadedEvent(command.getContainerId(), command.getTruckId()));
+        AggregateLifecycle.apply(new ContainerLoadedEvent(command.getContainerId(), command.getShipmentId()));
     }
 
     @EventSourcingHandler

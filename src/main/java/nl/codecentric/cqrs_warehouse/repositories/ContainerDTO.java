@@ -17,5 +17,6 @@ public class ContainerDTO {
     String articleName;
     Instant expirationDate;
     boolean isReserved;
+    String reservedFor;
     String location;
 }

@@ -1,11 +1,11 @@
 package nl.codecentric.cqrs_warehouse.domain.shipment;
 
-import java.util.UUID;
-
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-public class ShipmentClaimedEvent {
+public class ShipmentCanceledEvent {
     private final UUID shipmentId;
     private final String state;
 }

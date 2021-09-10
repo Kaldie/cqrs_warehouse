@@ -2,10 +2,7 @@ package nl.codecentric.cqrs_warehouse.projections;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.codecentric.cqrs_warehouse.domain.container.ContainerUnloadedEvent;
-import nl.codecentric.cqrs_warehouse.domain.shipment.FetchAllShipmentsQuery;
-import nl.codecentric.cqrs_warehouse.domain.shipment.FetchShipmentByIdQuery;
-import nl.codecentric.cqrs_warehouse.domain.shipment.ShipmentCreatedEvent;
-import nl.codecentric.cqrs_warehouse.domain.shipment.ShipmentResolvedEvent;
+import nl.codecentric.cqrs_warehouse.domain.shipment.*;
 import nl.codecentric.cqrs_warehouse.repositories.*;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
@@ -41,9 +38,19 @@ public class ShipmentProjection {
 
         if (shipment.isPresent()) {
             ShipmentDTO shipmentDTO = shipment.get().toBuilder().volume(shipment.get().getVolume() - 1).build();
+            shipmentRepository.save(shipmentDTO);
             if(shipmentDTO.getVolume() <= 0) {
-                shipmentDTO = shipmentDTO.toBuilder().state("Truck unloaded in docking bay.").build();
+                shipmentRepository.deleteById(shipmentDTO.getShipmentId());
             }
+        }
+    }
+
+    @EventHandler
+    public void on(ShipmentClaimedEvent event) {
+        Optional<ShipmentDTO> shipment = shipmentRepository.findById(event.getShipmentId().toString());
+
+        if (shipment.isPresent()) {
+            ShipmentDTO shipmentDTO = shipment.get().toBuilder().state(event.getState()).build();
             shipmentRepository.save(shipmentDTO);
         }
     }
@@ -56,6 +63,11 @@ public class ShipmentProjection {
             ShipmentDTO shipmentDTO = shipment.get().toBuilder().state(event.getState()).build();
             shipmentRepository.save(shipmentDTO);
         }
+    }
+
+    @EventHandler
+    public void on(ShipmentDeparturedEvent event) {
+        shipmentRepository.deleteById(event.getShipmentId().toString());
     }
 
     @QueryHandler

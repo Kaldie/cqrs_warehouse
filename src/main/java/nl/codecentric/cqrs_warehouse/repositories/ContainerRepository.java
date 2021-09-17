@@ -7,7 +7,5 @@ import java.util.List;
 
 @Repository
 public interface ContainerRepository extends MongoRepository<ContainerDTO, String> {
-    List<ContainerDTO> findByArticleId(String articleId);
-
     List<ContainerDTO> findByReservedFor(String reservedFor);
 }

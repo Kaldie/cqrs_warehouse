@@ -37,11 +37,6 @@ public class ArticleController {
         return queryGateway.query(new FetchAllArticlesQuery(), ResponseTypes.multipleInstancesOf(ArticleDTO.class));
     }
 
-    @GetMapping(path = "/article/{articleId}/containers")
-    public CompletableFuture<List<ContainerDTO>> getContainers(@PathVariable("articleId") String articleId) {
-        return queryGateway.query(new FetchAllContainersByArticleQuery(articleId), ResponseTypes.multipleInstancesOf(ContainerDTO.class));
-    }
-
     @PostMapping(path = "/articles/unload-container")
     public UUID unloadContainer(@RequestBody UnloadContainerCommand command) {
         commandGateway.sendAndWait(command);
@@ -56,18 +51,6 @@ public class ArticleController {
 
     @PostMapping(path = "/articles/move-container")
     public UUID moveContainer(@RequestBody MoveContainerCommand command) {
-        commandGateway.sendAndWait(command);
-        return command.getContainerId();
-    }
-
-    @PostMapping(path = "/articles/claim-container")
-    public UUID claimContainer(@RequestBody ClaimContainerCommand command) {
-        commandGateway.sendAndWait(command);
-        return command.getShipmentId();
-    }
-
-    @PostMapping(path = "/articles/expire-container")
-    public UUID expireContainer(@RequestBody ExpireContainerCommand command) {
         commandGateway.sendAndWait(command);
         return command.getContainerId();
     }

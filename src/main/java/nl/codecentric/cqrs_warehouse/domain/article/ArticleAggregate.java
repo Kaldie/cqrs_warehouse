@@ -99,12 +99,10 @@ public class ArticleAggregate {
 
     @CommandHandler
     private void handle(ClaimContainerCommand command) {
-        log.info("Handle claim container command: {}", command);
         if (!hasAvailableContainers()) {
             AggregateLifecycle.apply(new ArticleOutOfStockEvent(this.id, command.getShipmentId()));
         } else {
             UUID containerId = findOldestAvailableContainer();
-            log.info("Found container to claim: {}", containerId.toString());
             AggregateLifecycle.apply(new ContainerClaimedEvent(command.getArticleId(), containerId, command.getShipmentId()));
         }
     }
@@ -119,7 +117,9 @@ public class ArticleAggregate {
 
     @CommandHandler
     private void handle(UnclaimContainerCommand command) {
-        AggregateLifecycle.apply(new ContainerUnclaimedEvent(command.getArticleId(), command.getContainerId(), command.getShipmentId()));
+        if (isContainerClaimed(command.getContainerId())) {
+            AggregateLifecycle.apply(new ContainerUnclaimedEvent(command.getArticleId(), command.getContainerId(), command.getShipmentId()));
+        }
     }
 
     @EventSourcingHandler
@@ -141,6 +141,10 @@ public class ArticleAggregate {
                 this.containers.values().stream()
                         .anyMatch(container -> !container.getIsReserved() &&
                                 container.getExpirationDate().isAfter(Instant.now().plus(5, ChronoUnit.DAYS)));
+    }
+
+    private boolean isContainerClaimed(UUID containerId) {
+        return this.containers.containsKey(containerId) && this.containers.get(containerId).getIsReserved();
     }
 
 }

@@ -87,11 +87,6 @@ public class ContainerProjection {
     }
 
     @QueryHandler
-    public List<ContainerDTO> on(FetchAllContainersByArticleQuery query) {
-        return containerRepository.findByArticleId(query.getArticleId());
-    }
-
-    @QueryHandler
     public List<ContainerDTO> on(FetchAllContainersQuery query) {
         return containerRepository.findAll();
     }

@@ -6,7 +6,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import java.util.UUID;
 
 @Data
-class CancelShipmentCommand {
+public class CancelShipmentCommand {
     @TargetAggregateIdentifier
     private final UUID shipmentId;
     private final String state;

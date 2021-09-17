@@ -46,7 +46,7 @@ public class ShipmentController {
 
     @PostMapping(path = "/shipments/{shipmentId}/departure")
     public void departShipment(@PathVariable("shipmentId") String shipmentId) {
-        commandGateway.send(new DepartureShipmentCommand(UUID.fromString(shipmentId)));
+        commandGateway.sendAndWait(new DepartureShipmentCommand(UUID.fromString(shipmentId)));
     }
 
 }

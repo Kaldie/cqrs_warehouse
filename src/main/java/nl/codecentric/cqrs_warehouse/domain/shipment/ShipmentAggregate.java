@@ -47,6 +47,11 @@ public class ShipmentAggregate {
         AggregateLifecycle.apply(new ShipmentClaimedEvent(command.getShipmentId(), command.getState()));
     }
 
+    @EventSourcingHandler
+    public void on(ShipmentClaimedEvent event) {
+        this.state = event.getState();
+    }
+
     @CommandHandler
     public void handle(ResolveShipmentCommand command) {
         AggregateLifecycle.apply(new ShipmentResolvedEvent(command.getShipmentId(), command.getState()));
@@ -60,7 +65,7 @@ public class ShipmentAggregate {
 
     @CommandHandler
     public void on(DepartureShipmentCommand command) {
-        AggregateLifecycle.apply(new ShipmentDeparturedEvent(command.getShipment()));
+        AggregateLifecycle.apply(new ShipmentDeparturedEvent(command.getShipmentId()));
     }
 
     @CommandHandler

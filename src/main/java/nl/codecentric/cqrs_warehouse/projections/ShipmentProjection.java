@@ -17,5 +17,30 @@ import java.util.Optional;
 @ProcessingGroup("ShipmentProjection")
 @Slf4j
 public class ShipmentProjection {
+    public void on(ShipmentCreatedEvent event) {
+    }
 
+    public void on(ContainerUnloadedEvent event) {
+    }
+
+    public void on(ShipmentClaimedEvent event) {
+    }
+
+    public void on(ShipmentResolvedEvent event) {
+    }
+
+    public void on(ShipmentCanceledEvent event) {
+    }
+
+    public void on(ShipmentDeparturedEvent event) {
+    }
+
+    public List<ShipmentDTO> on(FetchAllShipmentsQuery query) {
+        return null;
+    }
+
+    public Optional<ShipmentDTO> on(FetchShipmentByIdQuery query) {
+        return null;
+    }
 }
+

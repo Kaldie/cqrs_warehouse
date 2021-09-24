@@ -3,6 +3,7 @@ package nl.codecentric.cqrs_warehouse.domain;
 import nl.codecentric.cqrs_warehouse.domain.container.ClaimContainerCommand;
 import nl.codecentric.cqrs_warehouse.domain.container.ContainerClaimedEvent;
 import nl.codecentric.cqrs_warehouse.domain.container.ContainerLoadedEvent;
+import nl.codecentric.cqrs_warehouse.domain.container.ContainerUnclaimedEvent;
 import nl.codecentric.cqrs_warehouse.domain.shipment.*;
 import org.axonframework.test.saga.SagaTestFixture;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +17,10 @@ public class ShipmentSagaTest {
     private static final UUID ARTICLE_ID = UUID.randomUUID();
     private static final String CUSTOMER_NAME = "Jan Danoontje";
     private static final int VOLUME = 3;
-    private static final String SHIPMENT_INITIALISED_STATE = "Start Customer Request";
+    private static final String SHIPMENT_CREATED_STATE = "Ready to unload";
     private static final String CLAIM_SHIPMENT_STATE = "Containers reserved, ready to load";
     private static final String RESOLVE_SHIPMENT_STATE = "Containers loaded, ready to be transported";
+    private static final String CANCEL_SHIPMENT_STATE = "Failed! We do not have enough stock";
     public static final UUID CONTAINER_ID1 = UUID.randomUUID();
     public static final UUID CONTAINER_ID2 = UUID.randomUUID();
     public static final UUID CONTAINER_ID3 = UUID.randomUUID();
@@ -40,7 +42,6 @@ public class ShipmentSagaTest {
                         .articleId(ARTICLE_ID)
                         .customerName(CUSTOMER_NAME)
                         .volume(VOLUME)
-                        .state(SHIPMENT_INITIALISED_STATE)
                         .build());
     }
 
@@ -105,12 +106,22 @@ public class ShipmentSagaTest {
                 .expectActiveSagas(0);
     }
 
+    @Test
+    public void shipmentCanceledWhenOutOfStock() {
+        fixture.givenAggregate(SHIPMENT_ID)
+                .published(shipmentInitialisedEvent(), shipmentCreatedEvent(), containerClaimedEvent(CONTAINER_ID1))
+                .whenAggregate(SHIPMENT_ID).publishes(containerUnclaimedEvent(CONTAINER_ID1))
+                .expectActiveSagas(1)
+                .expectDispatchedCommands(new CancelShipmentCommand(UUID.fromString(SHIPMENT_ID), CANCEL_SHIPMENT_STATE));
+    }
+
+
     private ShipmentInitialisedEvent shipmentInitialisedEvent() {
-        return new ShipmentInitialisedEvent(UUID.fromString(SHIPMENT_ID), CUSTOMER_NAME, ARTICLE_ID, VOLUME, SHIPMENT_INITIALISED_STATE);
+        return new ShipmentInitialisedEvent(UUID.fromString(SHIPMENT_ID), CUSTOMER_NAME, ARTICLE_ID, VOLUME);
     }
 
     private ShipmentCreatedEvent shipmentCreatedEvent() {
-        return new ShipmentCreatedEvent(UUID.fromString(SHIPMENT_ID), CUSTOMER_NAME, VOLUME, ARTICLE_ID, SHIPMENT_INITIALISED_STATE);
+        return new ShipmentCreatedEvent(UUID.fromString(SHIPMENT_ID), CUSTOMER_NAME, VOLUME, ARTICLE_ID, SHIPMENT_CREATED_STATE);
     }
 
     private ContainerClaimedEvent containerClaimedEvent(UUID containerId) {
@@ -123,5 +134,9 @@ public class ShipmentSagaTest {
 
     private ShipmentDeparturedEvent shipmentDeparturedEvent() {
         return new ShipmentDeparturedEvent(UUID.fromString(SHIPMENT_ID));
+    }
+
+    private ContainerUnclaimedEvent containerUnclaimedEvent(UUID containerId) {
+        return new ContainerUnclaimedEvent(ARTICLE_ID, containerId, UUID.fromString(SHIPMENT_ID));
     }
 }

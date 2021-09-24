@@ -19,5 +19,4 @@ public class InitialiseShipmentCommand {
     private UUID shipmentId;
     private String customer;
     private Integer volume;
-    private String state;
 }

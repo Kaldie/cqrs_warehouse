@@ -29,7 +29,7 @@ public class ShipmentAggregate {
                 command.getCustomerName(),
                 command.getVolume(),
                 command.getArticleId(),
-                command.getState()
+                "Ready to unload"
         ));
     }
 

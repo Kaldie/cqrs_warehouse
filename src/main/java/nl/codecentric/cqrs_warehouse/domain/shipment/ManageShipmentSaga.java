@@ -37,7 +37,7 @@ public class ManageShipmentSaga {
         this.claimedContainers = new ArrayList<>();
         this.loadedContainers = new ArrayList<>();
 
-        commandGateway.send(new CreateShipmentCommand(event.getShipmentId(), event.getCustomerName(), event.getVolume(), event.getArticleId(), event.getState()));
+        commandGateway.send(new CreateShipmentCommand(event.getShipmentId(), event.getCustomerName(), event.getVolume(), event.getArticleId()));
     }
 
     @SagaEventHandler(associationProperty = "shipmentId")

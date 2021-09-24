@@ -66,8 +66,7 @@ public class ArticleAggregate {
                 command.getShipmentId(),
                 command.getCustomer(),
                 command.getArticleId(),
-                command.getVolume(),
-                command.getState()
+                command.getVolume()
         ));
     }
 

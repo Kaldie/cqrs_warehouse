@@ -35,7 +35,6 @@ public class ShipmentControllerTest {
                 .shipmentId(UUID.randomUUID())
                 .articleId(UUID.randomUUID())
                 .customerName(CUSTOMER_NAME)
-                .state(CREATE_SHIPMENT_STATE)
                 .build();
 
         shipmentController.createShipment(command);
@@ -50,7 +49,6 @@ public class ShipmentControllerTest {
                 .articleId(UUID.randomUUID())
                 .customer(CUSTOMER_NAME)
                 .volume(3)
-                .state(CREATE_SHIPMENT_STATE)
                 .build();
 
         shipmentController.initialiseShipment(command);

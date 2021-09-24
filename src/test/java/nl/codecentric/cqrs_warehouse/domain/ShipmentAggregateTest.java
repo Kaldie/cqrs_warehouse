@@ -40,7 +40,6 @@ public class ShipmentAggregateTest {
                         .shipmentId(SHIPMENT_ID)
                         .articleId(ARTICLE_ID)
                         .customerName(CUSTOMER_NAME)
-                        .state(CREATE_SHIPMENT_STATE)
                         .volume(VOLUME)
                         .build())
                 .expectSuccessfulHandlerExecution()

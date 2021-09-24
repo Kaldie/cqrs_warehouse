@@ -16,5 +16,4 @@ public class CreateShipmentCommand {
     String customerName;
     Integer volume;
     UUID articleId;
-    String state;
 }

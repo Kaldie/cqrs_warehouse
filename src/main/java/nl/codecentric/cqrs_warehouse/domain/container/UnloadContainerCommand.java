@@ -13,7 +13,6 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class UnloadContainerCommand {
-    @TargetAggregateIdentifier
     private UUID articleId;
     private UUID shipmentId;
     private UUID containerId;

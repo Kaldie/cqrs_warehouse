@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Data
 public class CancelShipmentCommand {
-    @TargetAggregateIdentifier
     private final UUID shipmentId;
     private final String state;
 }

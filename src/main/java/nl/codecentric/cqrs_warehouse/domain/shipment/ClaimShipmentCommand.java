@@ -8,7 +8,6 @@ import lombok.Data;
 
 @Data
 public class ClaimShipmentCommand {
-    @TargetAggregateIdentifier
     private final UUID shipmentId;
     private final String state;
 }

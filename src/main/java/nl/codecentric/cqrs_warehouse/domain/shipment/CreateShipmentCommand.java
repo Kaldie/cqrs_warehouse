@@ -11,7 +11,6 @@ import lombok.Data;
 @Value
 @Builder
 public class CreateShipmentCommand {
-    @TargetAggregateIdentifier
     UUID shipmentId;
     String customerName;
     Integer volume;

@@ -13,6 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class DepartureShipmentCommand {
-    @TargetAggregateIdentifier
     private UUID shipmentId;
 }

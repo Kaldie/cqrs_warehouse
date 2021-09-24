@@ -24,29 +24,27 @@ public class ShipmentController {
 
     @PostMapping(path = "/shipments/create")
     public UUID createShipment(@RequestBody CreateShipmentCommand command) {
-        commandGateway.sendAndWait(command);
-        return command.getShipmentId();
+        return null;
     }
 
     @GetMapping(path = "/shipments")
     public CompletableFuture<List<ShipmentDTO>> getShipments() {
-        return queryGateway.query(new FetchAllShipmentsQuery(), ResponseTypes.multipleInstancesOf(ShipmentDTO.class));
+        return null;
     }
 
     @GetMapping(path = "/shipments/{shipmentId}")
     public CompletableFuture<Optional<ShipmentDTO>> getShipment(@PathVariable("shipmentId") String shipmentId) {
-        return queryGateway.query(new FetchShipmentByIdQuery(shipmentId), ResponseTypes.optionalInstanceOf(ShipmentDTO.class));
+        return null;
     }
 
     @PostMapping(path = "/shipments/initialise")
     public UUID initialiseShipment(@RequestBody InitialiseShipmentCommand command) {
-        commandGateway.sendAndWait(command);
-        return command.getShipmentId();
+        return null;
     }
 
     @PostMapping(path = "/shipments/{shipmentId}/departure")
-    public void departShipment(@PathVariable("shipmentId") String shipmentId) {
-        commandGateway.sendAndWait(new DepartureShipmentCommand(UUID.fromString(shipmentId)));
+    public UUID departShipment(@PathVariable("shipmentId") String shipmentId) {
+        return null;
     }
 
 }

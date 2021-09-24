@@ -11,7 +11,6 @@ import lombok.Data;
 @Value
 @Builder
 public class ClaimContainerCommand {
-    @TargetAggregateIdentifier
     UUID articleId;
     UUID shipmentId;
 }

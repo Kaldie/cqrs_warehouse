@@ -31,7 +31,6 @@ public class ArticleAggregate {
     private UUID id;
     private String name;
 
-    // used also to check stock
     @AggregateMember(eventForwardingMode = ForwardMatchingInstances.class)
     private Map<UUID, Container> containers;
 
@@ -57,7 +56,7 @@ public class ArticleAggregate {
     @EventSourcingHandler
     private void on(ContainerUnloadedEvent event) {
         this.containers.put(event.getContainerId(),
-                new Container(event.getContainerId(), event.getArticleId(), event.getArticleName(), event.getExpirationDate(), false, event.getLocation()));
+                new Container(event.getContainerId(), event.getArticleId(), event.getArticleName(), event.getExpirationDate(), false, "", event.getLocation()));
     }
 
     @CommandHandler
@@ -106,29 +105,6 @@ public class ArticleAggregate {
         }
     }
 
-    @EventSourcingHandler
-    private void on(ContainerClaimedEvent event) {
-        Container container = this.containers.get(event.getContainerId());
-        container.setIsReserved(true);
-
-        this.containers.put(container.getContainerId(), container);
-    }
-
-    @CommandHandler
-    private void handle(UnclaimContainerCommand command) {
-        if (isContainerClaimed(command.getContainerId())) {
-            AggregateLifecycle.apply(new ContainerUnclaimedEvent(command.getArticleId(), command.getContainerId(), command.getShipmentId()));
-        }
-    }
-
-    @EventSourcingHandler
-    private void on(ContainerUnclaimedEvent event) {
-        Container container = this.containers.get(event.getContainerId());
-        container.setIsReserved(false);
-
-        this.containers.put(container.getContainerId(), container);
-    }
-
     private UUID findOldestAvailableContainer() {
         return this.containers.values().stream()
                 .filter(container -> !container.getIsReserved())
@@ -141,9 +117,4 @@ public class ArticleAggregate {
                         .anyMatch(container -> !container.getIsReserved() &&
                                 container.getExpirationDate().isAfter(Instant.now().plus(5, ChronoUnit.DAYS)));
     }
-
-    private boolean isContainerClaimed(UUID containerId) {
-        return this.containers.containsKey(containerId) && this.containers.get(containerId).getIsReserved();
-    }
-
 }

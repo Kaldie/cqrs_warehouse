@@ -23,6 +23,7 @@ public class Container {
     private String articleName;
     private Instant expirationDate;
     private Boolean isReserved;
+    private String reservedFor;
     private String location;
 
     @CommandHandler
@@ -40,6 +41,25 @@ public class Container {
     @EventSourcingHandler
     private void on(ContainerMovedEvent event) {
         this.location = event.getLocation();
+    }
+
+    @EventSourcingHandler
+    private void on(ContainerClaimedEvent event) {
+        this.setIsReserved(true);
+        this.setReservedFor(event.getShipmentId().toString());
+    }
+
+    @CommandHandler
+    private void handle(UnclaimContainerCommand command) {
+        if (isReserved) {
+            AggregateLifecycle.apply(new ContainerUnclaimedEvent(command.getArticleId(), command.getContainerId(), command.getShipmentId()));
+        }
+    }
+
+    @EventSourcingHandler
+    private void on(ContainerUnclaimedEvent event) {
+        this.setIsReserved(false);
+        this.setReservedFor("");
     }
 
 }

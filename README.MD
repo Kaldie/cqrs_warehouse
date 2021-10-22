@@ -147,14 +147,42 @@ Your Container.java class should have a `@EntityId` specifying the identifying f
 This is required to be able to route a command or event to the correct aggregate member.
 
 ##### Saga
+A Saga is a special type of Event Listener: one that manages a business transaction. 
+Some transactions could be running for days or even weeks, while others are completed within a few milliseconds. 
+In Axon, each instance of a Saga is responsible for managing a single business transaction. 
+That means a Saga maintains state necessary to manage that transaction, continuing it or taking compensating actions to roll back any actions already taken.
+
+In our case that transaction is the functionality of creating a customer-request and that the shipment will be handled.
+This means:
+1. Creating a shipment
+2. Claiming containers
+3. (Optional) Unclaim containers when we don't have enough stock
+4. Prepare shipment to be loaded into truck
+5. Depart shipment when all is loaded.
+
+The state which is necessary for this business transaction is kept in the saga.
+
+A saga also introduces a new kind of event handler, a `@SagaEventHandler` which
+handles all the relevant events. The event that creates the saga, in our case `ShipmentInitialisedEvent` will also have an additional
+annotation: `@StartSaga`. This annotation will create a new saga and invoke its event handler method when a matching event is published.
+
+How does a Saga know on which events to trigger? 
+This is done by the `associationProperty` parameter on `@SagaEventHandler`. In our case it should be:
+
+```java
+@SagaEventHandler(associationProperty = "shipmentId")
+```
+
+This means that all the events with the same shipmentId will be mapped to the correct Saga.
+
+Since the saga looks after a business transaction, it means that we have a start, but also an end.
+
+When an event is applied to the EventBus and picked up by the Saga it's possible that the Saga should be ended.
+This is done with the annotation: `@EndSaga`
 
 
+>This it, all the information is there to get this application working and all the tests should succeed.
+> If you are not quite sure, please check out the master branch where you can see the implementation.
 
 
-
-
-
-
-
-
-
+###Thank you! And I hope you have learned something new today!

@@ -18,8 +18,6 @@ import lombok.NoArgsConstructor;
 public class Container {
     
     private UUID containerId;
-    private UUID articleId;
-    private String articleName;
     private Instant expirationDate;
     private Boolean isReserved;
     private String location;

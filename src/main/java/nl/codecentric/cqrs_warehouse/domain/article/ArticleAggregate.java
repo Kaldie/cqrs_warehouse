@@ -56,7 +56,7 @@ public class ArticleAggregate {
     @EventSourcingHandler
     private void on(ContainerUnloadedEvent event) {
         this.containers.put(event.getContainerId(),
-                new Container(event.getContainerId(), event.getArticleId(), event.getArticleName(), event.getExpirationDate(), false, "", event.getLocation()));
+                new Container(event.getContainerId(), event.getExpirationDate(), false, "", event.getLocation()));
     }
 
     @CommandHandler

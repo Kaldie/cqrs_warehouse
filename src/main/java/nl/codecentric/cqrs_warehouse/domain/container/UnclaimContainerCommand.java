@@ -9,7 +9,6 @@ import java.util.UUID;
 @Data
 @Builder
 public class UnclaimContainerCommand {
-    
     @TargetAggregateIdentifier
     private final UUID articleId;
     private final UUID containerId;

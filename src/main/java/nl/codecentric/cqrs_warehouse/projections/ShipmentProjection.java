@@ -1,6 +1,5 @@
 package nl.codecentric.cqrs_warehouse.projections;
 
-import lombok.extern.slf4j.Slf4j;
 import nl.codecentric.cqrs_warehouse.domain.container.ContainerUnloadedEvent;
 import nl.codecentric.cqrs_warehouse.domain.shipment.*;
 import nl.codecentric.cqrs_warehouse.repositories.*;
@@ -15,7 +14,6 @@ import java.util.Optional;
 
 @Component
 @ProcessingGroup("ShipmentProjection")
-@Slf4j
 public class ShipmentProjection {
 
     @Autowired

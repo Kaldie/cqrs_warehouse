@@ -5,7 +5,6 @@ import nl.codecentric.cqrs_warehouse.domain.article.CreateArticleCommand;
 import nl.codecentric.cqrs_warehouse.domain.article.FetchAllArticlesQuery;
 import nl.codecentric.cqrs_warehouse.domain.container.*;
 import nl.codecentric.cqrs_warehouse.repositories.ArticleDTO;
-import nl.codecentric.cqrs_warehouse.repositories.ContainerDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;

@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Value;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-import lombok.Data;
-
 @Value
 @Builder
 public class CreateShipmentCommand {

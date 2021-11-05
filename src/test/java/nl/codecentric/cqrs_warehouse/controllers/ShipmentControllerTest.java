@@ -16,9 +16,7 @@ import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 public class ShipmentControllerTest {
-
     private static final String CUSTOMER_NAME = "Jumbo";
-    public static final String CREATE_SHIPMENT_STATE = "Ready to unload";
 
     @Mock
     CommandGateway commandGateway;
